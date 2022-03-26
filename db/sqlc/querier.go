@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	BlacklistSession(ctx context.Context, id uuid.UUID) error
 	ChangePassword(ctx context.Context, arg ChangePasswordParams) error
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateTodo(ctx context.Context, arg CreateTodoParams) (Todo, error)

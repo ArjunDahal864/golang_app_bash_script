@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	db "go-lang-app/db/sqlc"
 	"go-lang-app/token"
 	"go-lang-app/util"
@@ -26,6 +27,14 @@ type userResponse struct {
 	Email      string         `json:"email"`
 	ProfilePic sql.NullString `json:"profile_pic"`
 	CreatedAt  time.Time      `json:"created_at"`
+}
+
+type changePasswordRequest struct {
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type changeProfilePicRequest struct {
+	ProfilePic string `json:"profile_pic"`
 }
 
 func newUserResponse(user db.User) userResponse {
@@ -165,4 +174,86 @@ func (s *Server) profile(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, newUserResponse(user))
+}
+
+func (s *Server) changePassword(ctx *gin.Context) {
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	var req changePasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	user, err := s.store.FindUserByEmail(ctx, authPayload.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	hashedPassword, err := util.HashPassword(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	args := db.ChangePasswordParams{
+		ID:       user.ID,
+		Password: hashedPassword,
+	}
+	err = s.store.ChangePassword(ctx, args)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "password changed",
+	})
+
+}
+
+func (s *Server) changeProfilePic(ctx *gin.Context) {
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	var req changeProfilePicRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	user, err := s.store.FindUserByEmail(ctx, authPayload.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	if user.ID != authPayload.UserID {
+		ctx.JSON(http.StatusForbidden, errorResponse(errors.New("unauthorized")))
+		return
+	}
+
+	args := db.UpdateUserProfileParams{
+		ID: user.ID,
+		ProfileImage: sql.NullString{
+			String: req.ProfilePic,
+			Valid:  true,
+		},
+	}
+
+	err = s.store.UpdateUserProfile(ctx, args)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "profile pic changed",
+	})
+}
+
+func (s *Server) logout(ctx *gin.Context) {
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if err := s.store.BlacklistSession(ctx, authPayload.ID); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "logout success",
+	})
 }

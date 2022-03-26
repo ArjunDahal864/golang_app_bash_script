@@ -10,6 +10,15 @@ import (
 	"github.com/google/uuid"
 )
 
+const blacklistSession = `-- name: BlacklistSession :exec
+UPDATE sessions SET is_blocked = true WHERE id = $1
+`
+
+func (q *Queries) BlacklistSession(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, blacklistSession, id)
+	return err
+}
+
 const createSession = `-- name: CreateSession :one
 INSERT INTO sessions (
   id,
