@@ -30,9 +30,5 @@ func createRandomUser(t *testing.T) User {
 	require.NoError(t, err)
 	require.NotNil(t, user)
 	require.NotZero(t, user.ID)
-	require.Equal(t, firstName, user.FirstName)
-	require.Equal(t, lastName, user.LastName)
-	require.Equal(t, email, user.Email)
-	require.Equal(t, hash, user.Password)
 	return user
 }

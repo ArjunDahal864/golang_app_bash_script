@@ -65,15 +65,10 @@ func (server *Server) setupRouter() {
 		user.GET("/logout", server.logout)
 
 	}
+	
 
-	todo := v1.Group("/todo").Use(authMiddleware(server.tokenMaker))
-	{
-		todo.GET("/", server.getTodos)
-		todo.POST("/", server.createTodo)
-		todo.GET("/:id", server.getTodo)
-		todo.PUT("/:id", server.updateTodo)
-		todo.DELETE("/:id", server.deleteTodo)
-	}
+
+
 
 	server.router = router
 }

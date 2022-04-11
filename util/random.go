@@ -31,8 +31,12 @@ func RandomString(n int) string {
 	return sb.String()
 }
 
-
 // RandomEmail generates a random email
 func RandomEmail() string {
 	return fmt.Sprintf("%s@email.com", RandomString(6))
+}
+
+// RandomBool
+func RandomBool() bool {
+	return rand.Intn(2) == 0
 }

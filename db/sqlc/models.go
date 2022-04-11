@@ -9,6 +9,47 @@ import (
 	"github.com/google/uuid"
 )
 
+type Answer struct {
+	ID         int32        `json:"id"`
+	QuestionID int32        `json:"question_id"`
+	Answer     string       `json:"answer"`
+	CreatedBy  int32        `json:"created_by"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
+	DeletedAt  sql.NullTime `json:"deleted_at"`
+}
+
+type Option struct {
+	ID         int32        `json:"id"`
+	QuestionID int32        `json:"question_id"`
+	Option     string       `json:"option"`
+	IsCorrect  bool         `json:"is_correct"`
+	CreatedBy  int32        `json:"created_by"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
+	DeletedAt  sql.NullTime `json:"deleted_at"`
+}
+
+type Question struct {
+	ID        int32        `json:"id"`
+	QuizID    int32        `json:"quiz_id"`
+	Question  string       `json:"question"`
+	CreatedBy int32        `json:"created_by"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
+}
+
+type Quiz struct {
+	ID          int32        `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	CreatedBy   int32        `json:"created_by"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
+	DeletedAt   sql.NullTime `json:"deleted_at"`
+}
+
 type Session struct {
 	ID           uuid.UUID `json:"id"`
 	Email        string    `json:"email"`
@@ -18,17 +59,6 @@ type Session struct {
 	IsBlocked    bool      `json:"is_blocked"`
 	ExpiresAt    time.Time `json:"expires_at"`
 	CreatedAt    time.Time `json:"created_at"`
-}
-
-type Todo struct {
-	ID          int32          `json:"id"`
-	Title       string         `json:"title"`
-	Description sql.NullString `json:"description"`
-	IsCompleted bool           `json:"is_completed"`
-	UserID      int32          `json:"user_id"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   sql.NullTime   `json:"deleted_at"`
 }
 
 type User struct {

@@ -7,6 +7,7 @@ CREATE TABLE "sessions" (
   "is_blocked" boolean NOT NULL DEFAULT false,
   "expires_at" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
+  
 );
 
 ALTER TABLE "sessions" ADD FOREIGN KEY ("email") REFERENCES "user" ("email");
